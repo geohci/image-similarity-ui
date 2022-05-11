@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Commons Reverse Image Search</title>
+	<link rel="shortcut icon" href="./static/favicon.ico">
+	<meta name="viewport" content="width = device-width, initial-scale=1, user-scalable = no" />
+	<link href="https://tools-static.wmflabs.org/fontcdn/css?family=Merriweather:400,400italic,700,700italic&subset=latin" rel="stylesheet" type="text/css">
+	<link href='https://tools-static.wmflabs.org/fontcdn/css?family=Lato:400,400italic,700,700italic&subset=latin' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="./static/style.css" />
+
+</head>
+
+<body>
+	<script type="text/javascript">
+		var body = document.body;
+		body.classList.add('js');
+	</script>
+
+	<div id="origin_bar">
+		<div class="boxwidth--1-1 padded--left padded--right">
+			<a href="https://research.wikimedia.org/" class="origin_title"><img src="./static/Wikimedia-Foundation-logo.svg" alt="Wikimedia Foundation logo" />Wikimedia Research</a>
+		</div>
+	</div>
+
+	<article id="tool_holder">
+		<div id="tool_header--holder" class="boxwidth--1-1 padded--left padded--right">
+			<header id="tool_header">
+				<h1>Image Similarity on Wikimedia Commons</h1>
+				<div class="meta">
+					<div class="disclaimer note">
+						<p>No guarantees are made that this tool will be maintained.</p>
+						<p>This is an experimental tool hosted on <a href="https://wikitech.wikimedia.org/wiki/Portal:Toolforge">Toolforge</a>. No additional personal data is collected by this tool per the Cloud Services
+							<a href="https://wikitech.wikimedia.org/wiki/Wikitech:Cloud_Services_Terms_of_use" target="_blank" rel="noopener">Terms of Use</a>.</p>
+					</div>
+					<div class="description padded--right">
+						<p>This tool finds similar images to any image on Wikimedia Commons. Submit the name of an Commons image below or leave it blank to try a random one.</p>
+					</div>
+				</div>
+			</header>
+		</div>
+
+		<div class="separator"></div>
+
+		<section id="topic" class="boxwidth--1-1 padded--left padded--right">
+			<main id="tool_main">
+				<section class="form">
+					<form action="#results">
+						<div class="cols cols3">
+							<div class="col col2">
+								{% if image_name %}
+								<label class="placeholder"><span class="field_name">Commons image name -- e.g., Eastern chanting goshawk (Melierax poliopterus).jpg</span>
+									<input type="text" value="{{image_name}}" placeholder="Placeholder text" id="image-name"/>
+								</label>
+								{% else %}
+								<label class="placeholder"><span class="field_name">Commons image name -- e.g., Eastern chanting goshawk (Melierax poliopterus).jpg</span>
+									<input type="text" value="" placeholder="Placeholder text" id="image-name"/>
+								</label>
+								{% endif %}
+							</div>
+							<div class="col col1">
+								<span class="field_name"></span>
+								<input type="submit" value="Submit" id="btnSubmit" />
+							</div>
+						</div>
+					</form>
+				</section>
+				<section id="results">
+					<div class="cards">
+						<div class="cols cols3">
+							<div class="col col1">
+								<article class="card" id="source-img">
+									<!-- Empty section to hold source image -->
+								</article><!-- .card -->
+							</div><!-- .col -->
+							<div class="col col1">
+								<article class="card" id="sim-img-0">
+									<!-- Empty section to hold similar image -->
+								</article><!-- .card -->
+								<br>
+								<article class="card" id="sim-img-2">
+									<!-- Empty section to hold similar image -->
+								</article><!-- .card -->
+								<br>
+								<article class="card" id="sim-img-4">
+									<!-- Empty section to hold similar image -->
+								</article><!-- .card -->
+								<br>
+								<article class="card" id="sim-img-6">
+									<!-- Empty section to hold similar image -->
+								</article><!-- .card -->
+							</div>
+							<div class="col col1">
+								<article class="card" id="sim-img-1">
+									<!-- Empty section to hold similar image -->
+								</article><!-- .card -->
+								<br>
+								<article class="card" id="sim-img-3">
+									<!-- Empty section to hold similar image -->
+								</article><!-- .card -->
+								<br>
+								<article class="card" id="sim-img-5">
+									<!-- Empty section to hold similar image -->
+								</article><!-- .card -->
+								<br>
+								<article class="card" id="sim-img-7">
+									<!-- Empty section to hold similar image -->
+								</article><!-- .card -->
+							</div>
+						</div>
+					</div>
+				</section>
+			</main>
+		</section>
+	</article>
+
+	<footer id="tool_footer">
+		<div id="tool_footer-in" class="boxwidth--1-1 padded--left padded--right">
+			<p>Experimental tool developed by <span class="tool-author"><a href="https://meta.wikipedia.org/wiki/User:Isaac_(WMF)">Isaac (WMF)</a> as part of <a href="https://research.wikimedia.org/">Wikimedia Research</a></span>.</p>
+			<ul>
+				<li><a href="https://github.com/geohci/wikipedia-topic-model-api/tree/image-similarity">View Source</a></li>
+				<li><a href="https://meta.wikimedia.org/wiki/Research:A_System_for_Large-scale_Image_Similarity">Meta</a></li>
+				<li><a href="https://github.com/geohci/wikipedia-topic-model-api/tree/image-similarity#license">License</a></li>
+			</ul>
+		</div>
+	</footer>
+
+
+	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/crypto-js/4.1.1/core.js"></script>
+	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/crypto-js/4.1.1/md5.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('form label.placeholder').each(function() {
+				if (!$('input, textarea, select', this).val()) {
+	 				$(this).addClass('off');
+				}
+				$(this).on('focusin', function() {
+					$(this).removeClass('off');
+				});
+				$(this).on('focusout', function() {
+					if (!$('input, textarea, select', this).val()) {
+						$(this).addClass('off');
+					}
+				});
+				$('*[placeholder]', this).attr('placeholder', '');
+			});
+		});
+	</script>
+
+	<script type="text/javascript">
+		$('#btnSubmit').click(function (e) {
+		   e.preventDefault(); queryImageSimAPI();
+		});
+
+		// some boilerplate code to hit the API if the form is filled in on page load
+		window.onload = function() {
+			if (document.getElementById('image-name').value) {
+				queryImageSimAPI();
+			}
+		}
+
+		var upload_to_thumbnail = function(url) {
+			// https://upload.wikimedia.org/wikipedia/commons/f/f6/Eastern_chanting_goshawk_%28Melierax_poliopterus%29.jpg
+			// to 320px thumbnail
+			// https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Eastern_chanting_goshawk_(Melierax_poliopterus).jpg/320px-Eastern_chanting_goshawk_(Melierax_poliopterus).jpg
+			var thumbnail_size = "320"; // this could be increased/decreased as needed but seems to work well enough
+			var url_parts = url.split('/wikipedia/commons/');
+			var filename = url_parts[1].split('/')[2];
+			// some upload.wikimedia URLs are http and this can cause issues
+			return url_parts[0].replace('http://', 'https://') + '/wikipedia/commons/thumb/' + url_parts[1] + '/' + thumbnail_size + 'px-' + filename;
+		}
+
+		var upload_to_image_name = function(url) {
+			// https://upload.wikimedia.org/wikipedia/commons/f/f6/Eastern_chanting_goshawk_%28Melierax_poliopterus%29.jpg
+			// to image name:
+			// Eastern_chanting_goshawk_(Melierax_poliopterus).jpg
+			var url_parts = url.split('/wikipedia/commons/');
+			var image_name = url_parts[1].split('/')[2];
+			return printable_image_name(image_name);
+		}
+
+		var printable_image_name = function(image_name) {
+			return decodeURI(image_name).replaceAll('_',' ');
+		}
+
+		var image_name_to_upload = function(image_name) {
+			// Eastern_chanting_goshawk_(Melierax_poliopterus).jpg
+			// to image name:
+			// https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Eastern_chanting_goshawk_(Melierax_poliopterus).jpg/320px-Eastern_chanting_goshawk_(Melierax_poliopterus).jpg
+			var url = "https://upload.wikimedia.org/wikipedia/commons/"
+			// have to be careful about formatting when getting md5 hash
+			image_name = decodeURI(image_name).replaceAll(' ', '_');
+			var md5_hash = CryptoJS.MD5(image_name, "hex").toString();
+			url += md5_hash.slice(0,1) + '/' + md5_hash.slice(0,2) + '/' + image_name;
+			return upload_to_thumbnail(url);
+		}
+
+		var render_results = function(data) {
+			// clear previous results
+			$("#source-img").empty();
+			$("#sim-img-0").empty();
+			$("#sim-img-1").empty();
+			$("#sim-img-2").empty();
+			$("#sim-img-3").empty();
+			$("#sim-img-4").empty();
+			$("#sim-img-5").empty();
+			$("#sim-img-6").empty();
+			$("#sim-img-7").empty();
+			var sourceCardHTML = '<a href="https://commons.wikimedia.org/wiki/File:' + document.getElementById('image-name').value + '">';
+			if ("Error" in data) {
+				sourceCardHTML += '<div class="texts"><p>Look-up for ' + document.getElementById('image-name').value + ' in index failed.</p>';
+				sourceCardHTML += '<p>Click here to see if it exists on Wikimedia Commons.</p></div>';
+				$("#source-img").append(sourceCardHTML);
+			} else if (data.length > 0) {
+				// build input image card
+				imgName = document.getElementById('image-name').value;
+				imgURL = image_name_to_upload(imgName);
+				sourceCardHTML += '<div class="img"><figure><img src="' + imgURL + '" /></figure></div>';
+				sourceCardHTML += '<div class="texts"><h3>Input image</h3>';
+				sourceCardHTML += '<p>' + printable_image_name(imgName) + '</p>';
+				sourceCardHTML += '</div><div class="more">More info. &raquo;</div></a>';
+				$("#source-img").append(sourceCardHTML);
+				// build result cards
+				for (i in data) {
+					// only show first 8
+					if (i < 8) {
+						imgSrc = data[i]["url"];
+						imgURL = upload_to_thumbnail(imgSrc);
+						imgName = upload_to_image_name(imgSrc);
+						imgSco = data[i]["score"].toFixed(3);
+						simCardHTML = '<a href="https://commons.wikimedia.org/wiki/File:' + imgName + '">';
+						simCardHTML += '<div class="img"><figure><img src="' + imgURL + '" /></figure></div>';
+						simCardHTML += '<div class="texts"><h3>#' + (parseInt(i) + 1).toString() + ' (sim=' + imgSco + ')</h3>';
+						simCardHTML += '<p>' + imgName + '</p>';
+						simCardHTML += '</div><div class="more">View the image. &raquo;</div></a>';
+						$("#sim-img-" + i).append(simCardHTML);
+					}
+				}
+			}
+		}
+
+		// if using a random image, make sure the form reflects that
+		var update_image_name = function(data) {
+			document.getElementById('image-name').value = data['query']['random'][0]['title'].slice(5);
+			document.getElementById('image-name').parentNode.className = 'placeholder';
+		}
+
+		function queryImageSimAPI() {
+			// if no image submitted, get a random one
+			if (!document.getElementById('image-name').value) {
+				var randomPageQueryURL = "https://commons.wikimedia.org/w/api.php?action=query&format=json&list=random&rnlimit=1&rnnamespace=6&origin=*";
+				$.ajax(randomPageQueryURL,
+						{success: update_image_name.bind(this),
+							error: function(jqxmlhr, status, error){console.log(status + ": " + error)},
+							async: false
+						}
+					);
+				}
+
+			// ex: https://similar-image.wmcloud.org/api/v1/similar-images?image_name=Eastern_chanting_goshawk_(Melierax_poliopterus).jpg
+			var imageSimURL = "https://similar-image.wmcloud.org/api/v1/similar-images?image_name=" + document.getElementById('image-name').value.replaceAll(' ', '_');
+			$.ajax(imageSimURL,
+					{success: render_results.bind(this),
+						error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+					}
+				);
+			}
+	</script>
+</body>
+</html>
