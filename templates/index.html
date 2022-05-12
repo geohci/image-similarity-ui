@@ -8,7 +8,7 @@
 	<meta name="viewport" content="width = device-width, initial-scale=1, user-scalable = no" />
 	<link href="https://tools-static.wmflabs.org/fontcdn/css?family=Merriweather:400,400italic,700,700italic&subset=latin" rel="stylesheet" type="text/css">
 	<link href='https://tools-static.wmflabs.org/fontcdn/css?family=Lato:400,400italic,700,700italic&subset=latin' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" href="./static/style.css" />
+	<link rel="stylesheet" href="../static/style.css" />
 
 </head>
 
@@ -68,7 +68,7 @@
 				</section>
 				<section id="results">
 					<div class="cards">
-						<div class="cols cols3">
+						<div class="cols cols4">
 							<div class="col col1">
 								<article class="card" id="source-img">
 									<!-- Empty section to hold source image -->
@@ -79,11 +79,7 @@
 									<!-- Empty section to hold similar image -->
 								</article><!-- .card -->
 								<br>
-								<article class="card" id="sim-img-2">
-									<!-- Empty section to hold similar image -->
-								</article><!-- .card -->
-								<br>
-								<article class="card" id="sim-img-4">
+								<article class="card" id="sim-img-3">
 									<!-- Empty section to hold similar image -->
 								</article><!-- .card -->
 								<br>
@@ -96,7 +92,16 @@
 									<!-- Empty section to hold similar image -->
 								</article><!-- .card -->
 								<br>
-								<article class="card" id="sim-img-3">
+								<article class="card" id="sim-img-4">
+									<!-- Empty section to hold similar image -->
+								</article><!-- .card -->
+								<br>
+								<article class="card" id="sim-img-7">
+									<!-- Empty section to hold similar image -->
+								</article><!-- .card -->
+							</div>
+							<div class="col col1">
+								<article class="card" id="sim-img-2">
 									<!-- Empty section to hold similar image -->
 								</article><!-- .card -->
 								<br>
@@ -104,7 +109,7 @@
 									<!-- Empty section to hold similar image -->
 								</article><!-- .card -->
 								<br>
-								<article class="card" id="sim-img-7">
+								<article class="card" id="sim-img-8">
 									<!-- Empty section to hold similar image -->
 								</article><!-- .card -->
 							</div>
@@ -208,6 +213,7 @@
 			$("#sim-img-5").empty();
 			$("#sim-img-6").empty();
 			$("#sim-img-7").empty();
+			$("#sim-img-8").empty();
 			var sourceCardHTML = '<a href="https://commons.wikimedia.org/wiki/File:' + document.getElementById('image-name').value + '">';
 			if ("Error" in data) {
 				sourceCardHTML += '<div class="texts"><p>Look-up for ' + document.getElementById('image-name').value + ' in index failed.</p>';
@@ -224,8 +230,8 @@
 				$("#source-img").append(sourceCardHTML);
 				// build result cards
 				for (i in data) {
-					// only show first 8
-					if (i < 8) {
+					// only show first 9
+					if (i < 9) {
 						imgSrc = data[i]["url"];
 						imgURL = upload_to_thumbnail(imgSrc);
 						imgName = upload_to_image_name(imgSrc);

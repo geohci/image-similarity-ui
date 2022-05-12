@@ -1,5 +1,4 @@
 import os
-import re
 import yaml
 
 from flask import Flask, render_template, request

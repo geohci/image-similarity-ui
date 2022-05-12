@@ -14,6 +14,10 @@ The important files are as follows:
 * `templates/index.html`: this is where the UI HTML lives and Javascript code for taking input image names, hitting the API, and formatting the results
 * `static/style.css`: you likely will not need to edit this file but can find details about relevant classes [here](https://github.com/wikimedia/research-api-interface-template).
 
+### Layout
+Currently, the UI displays the source image on the top-left and then a 3 x 3 grid across the middle/right of the top-9 most-similar images.
+This could be changed by altering the `cols col` numbers and layout in the HTML.
+
 ### Deploying
 I find it easiest to test the interface locally (you may need to update the path to the CSS files but otherwise everything should work)
 The steps for updating the interface then:
