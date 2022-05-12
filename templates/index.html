@@ -8,7 +8,7 @@
 	<meta name="viewport" content="width = device-width, initial-scale=1, user-scalable = no" />
 	<link href="https://tools-static.wmflabs.org/fontcdn/css?family=Merriweather:400,400italic,700,700italic&subset=latin" rel="stylesheet" type="text/css">
 	<link href='https://tools-static.wmflabs.org/fontcdn/css?family=Lato:400,400italic,700,700italic&subset=latin' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" href="../static/style.css" />
+	<link rel="stylesheet" href="./static/style.css" />
 
 </head>
 
@@ -35,7 +35,7 @@
 							<a href="https://wikitech.wikimedia.org/wiki/Wikitech:Cloud_Services_Terms_of_use" target="_blank" rel="noopener">Terms of Use</a>.</p>
 					</div>
 					<div class="description padded--right">
-						<p>This tool finds similar images to any image on Wikimedia Commons. Submit the name of an Commons image below or leave it blank to try a random one.</p>
+						<p>This tool finds similar images to images on Wikimedia Commons. Note that not all images are currently indexed by the tool so some similar images may not be included. Submit the name of an Commons image below or leave it blank to try a random one.</p>
 					</div>
 				</div>
 			</header>
@@ -214,7 +214,7 @@
 			$("#sim-img-6").empty();
 			$("#sim-img-7").empty();
 			$("#sim-img-8").empty();
-			var sourceCardHTML = '<a href="https://commons.wikimedia.org/wiki/File:' + document.getElementById('image-name').value + '">';
+			var sourceCardHTML = '<a href="https://commons.wikimedia.org/wiki/File:' + encodeURI(document.getElementById('image-name').value) + '">';
 			if ("Error" in data) {
 				sourceCardHTML += '<div class="texts"><p>Look-up for ' + document.getElementById('image-name').value + ' in index failed.</p>';
 				sourceCardHTML += '<p>Click here to see if it exists on Wikimedia Commons.</p></div>';
@@ -222,7 +222,7 @@
 			} else if (data.length > 0) {
 				// build input image card
 				imgName = document.getElementById('image-name').value;
-				imgURL = image_name_to_upload(imgName);
+				imgURL = encodeURI(image_name_to_upload(imgName));
 				sourceCardHTML += '<div class="img"><figure><img src="' + imgURL + '" /></figure></div>';
 				sourceCardHTML += '<div class="texts"><h3>Input image</h3>';
 				sourceCardHTML += '<p>' + printable_image_name(imgName) + '</p>';
