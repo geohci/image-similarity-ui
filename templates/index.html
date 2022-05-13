@@ -214,7 +214,12 @@
 			$("#sim-img-6").empty();
 			$("#sim-img-7").empty();
 			$("#sim-img-8").empty();
-			var sourceCardHTML = '<a href="https://commons.wikimedia.org/wiki/File:' + encodeURI(document.getElementById('image-name').value) + '">';
+			var sourceImageUrl = ""
+			if(document.getElementById('image-name').value.startsWith('http'))
+				sourceImageUrl = document.getElementById('image-name').value;
+			else
+				sourceImageUrl = 'https://commons.wikimedia.org/wiki/File:' + encodeURI(document.getElementById('image-name').value);
+			var sourceCardHTML = '<a href="' + sourceImageUrl + '"' + '">';
 			if ("Error" in data) {
 				sourceCardHTML += '<div class="texts"><p>Look-up for ' + document.getElementById('image-name').value + ' in index failed.</p>';
 				sourceCardHTML += '<p>Click here to see if it exists on Wikimedia Commons.</p></div>';
@@ -222,7 +227,10 @@
 			} else if (data.length > 0) {
 				// build input image card
 				imgName = document.getElementById('image-name').value;
-				imgURL = encodeURI(image_name_to_upload(imgName));
+				if(document.getElementById('image-name').value.startsWith('http'))
+					imgURL = encodeURI(imgName);
+				else
+					imgURL = encodeURI(image_name_to_upload(imgName));
 				sourceCardHTML += '<div class="img"><figure><img src="' + imgURL + '" /></figure></div>';
 				sourceCardHTML += '<div class="texts"><h3>Input image</h3>';
 				sourceCardHTML += '<p>' + printable_image_name(imgName) + '</p>';
@@ -255,24 +263,46 @@
 
 		function queryImageSimAPI() {
 			// if no image submitted, get a random one
-			if (!document.getElementById('image-name').value) {
+			var imageNameOrUrl = document.getElementById('image-name').value;
+			if (!imageNameOrUrl) {
 				var randomPageQueryURL = "https://commons.wikimedia.org/w/api.php?action=query&format=json&list=random&rnlimit=1&rnnamespace=6&origin=*";
 				$.ajax(randomPageQueryURL,
-						{success: update_image_name.bind(this),
-							error: function(jqxmlhr, status, error){console.log(status + ": " + error)},
-							async: false
-						}
-					);
-				}
-
-			// ex: https://similar-image.wmcloud.org/api/v1/similar-images?image_name=Eastern_chanting_goshawk_(Melierax_poliopterus).jpg
-			var imageSimURL = "https://similar-image.wmcloud.org/api/v1/similar-images?image_name=" + document.getElementById('image-name').value.replaceAll(' ', '_');
-			$.ajax(imageSimURL,
-					{success: render_results.bind(this),
-						error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+					{
+						success: update_image_name.bind(this),
+						error: function(jqxmlhr, status, error){console.log(status + ": " + error)},
+						async: false
 					}
 				);
 			}
+			else{
+				if(imageNameOrUrl.startsWith('http')){
+					var settings = {
+						"url": "https://similar-image.wmcloud.org/api/v1/similar-images-url",
+						"method": "POST",
+						"timeout": 0,
+						"headers": {
+							"Content-Type": "application/json"
+						},
+						"data": JSON.stringify({
+							"url": imageNameOrUrl,
+						}),
+						"success": render_results.bind(this),
+						"error": function(jqxmlhr, status, error){console.log(status + ": " + error)}
+					};
+
+					$.ajax(settings);
+				}else{
+					// ex: https://similar-image.wmcloud.org/api/v1/similar-images?image_name=Eastern_chanting_goshawk_(Melierax_poliopterus).jpg
+					var imageSimURL = "https://similar-image.wmcloud.org/api/v1/similar-images?image_name=" + document.getElementById('image-name').value.replaceAll(' ', '_');
+					$.ajax(imageSimURL,
+						{
+							success: render_results.bind(this),
+							error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+						}
+					);
+				}
+			}
+		}
 	</script>
 </body>
 </html>
