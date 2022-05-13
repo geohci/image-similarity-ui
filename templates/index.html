@@ -214,7 +214,12 @@
 			$("#sim-img-6").empty();
 			$("#sim-img-7").empty();
 			$("#sim-img-8").empty();
-			var sourceCardHTML = '<a href="https://commons.wikimedia.org/wiki/File:' + encodeURI(document.getElementById('image-name').value) + '">';
+			var sourceImageUrl = ""
+			if(document.getElementById('image-name').value.startsWith('http'))
+				sourceImageUrl = document.getElementById('image-name').value;
+			else
+				sourceImageUrl = 'https://commons.wikimedia.org/wiki/File:' + encodeURI(document.getElementById('image-name').value);
+			var sourceCardHTML = '<a href="' + sourceImageUrl + '"' + '">';
 			if ("Error" in data) {
 				sourceCardHTML += '<div class="texts"><p>Look-up for ' + document.getElementById('image-name').value + ' in index failed.</p>';
 				sourceCardHTML += '<p>Click here to see if it exists on Wikimedia Commons.</p></div>';
@@ -222,7 +227,10 @@
 			} else if (data.length > 0) {
 				// build input image card
 				imgName = document.getElementById('image-name').value;
-				imgURL = encodeURI(image_name_to_upload(imgName));
+				if(document.getElementById('image-name').value.startsWith('http'))
+					imgURL = encodeURI(imgName);
+				else
+					imgURL = encodeURI(image_name_to_upload(imgName));
 				sourceCardHTML += '<div class="img"><figure><img src="' + imgURL + '" /></figure></div>';
 				sourceCardHTML += '<div class="texts"><h3>Input image</h3>';
 				sourceCardHTML += '<p>' + printable_image_name(imgName) + '</p>';
