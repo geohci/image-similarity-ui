@@ -265,14 +265,16 @@
 			// if no image submitted, get a random one
 			var imageNameOrUrl = document.getElementById('image-name').value;
 			if (!imageNameOrUrl || !imageNameOrUrl.startsWith('http')) {
-				var randomPageQueryURL = "https://commons.wikimedia.org/w/api.php?action=query&format=json&list=random&rnlimit=1&rnnamespace=6&origin=*";
-				$.ajax(randomPageQueryURL,
-					{
-						success: update_image_name.bind(this),
-						error: function(jqxmlhr, status, error){console.log(status + ": " + error)},
-						async: false
-					}
-				);
+				if(!imageNameOrUrl){
+					var randomPageQueryURL = "https://commons.wikimedia.org/w/api.php?action=query&format=json&list=random&rnlimit=1&rnnamespace=6&origin=*";
+					$.ajax(randomPageQueryURL,
+						{
+							success: update_image_name.bind(this),
+							error: function(jqxmlhr, status, error){console.log(status + ": " + error)},
+							async: false
+						}
+					);
+				}
 
 				var imageSimURL = "https://similar-image.wmcloud.org/api/v1/similar-images?image_name=" + document.getElementById('image-name').value.replaceAll(' ', '_');
 				$.ajax(imageSimURL,
