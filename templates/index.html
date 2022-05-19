@@ -264,7 +264,7 @@
 		function queryImageSimAPI() {
 			// if no image submitted, get a random one
 			var imageNameOrUrl = document.getElementById('image-name').value;
-			if (!imageNameOrUrl) {
+			if (!imageNameOrUrl || !imageNameOrUrl.startsWith('http')) {
 				var randomPageQueryURL = "https://commons.wikimedia.org/w/api.php?action=query&format=json&list=random&rnlimit=1&rnnamespace=6&origin=*";
 				$.ajax(randomPageQueryURL,
 					{
@@ -273,34 +273,31 @@
 						async: false
 					}
 				);
+
+				var imageSimURL = "https://similar-image.wmcloud.org/api/v1/similar-images?image_name=" + document.getElementById('image-name').value.replaceAll(' ', '_');
+				$.ajax(imageSimURL,
+					{
+						success: render_results.bind(this),
+						error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+					}
+				);
 			}
 			else{
-				if(imageNameOrUrl.startsWith('http')){
-					var settings = {
-						"url": "https://similar-image.wmcloud.org/api/v1/similar-images-url",
-						"method": "POST",
-						"timeout": 0,
-						"headers": {
-							"Content-Type": "application/json"
-						},
-						"data": JSON.stringify({
-							"url": imageNameOrUrl,
-						}),
-						"success": render_results.bind(this),
-						"error": function(jqxmlhr, status, error){console.log(status + ": " + error)}
-					};
+				var settings = {
+					"url": "https://similar-image.wmcloud.org/api/v1/similar-images-url",
+					"method": "POST",
+					"timeout": 0,
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"data": JSON.stringify({
+						"url": imageNameOrUrl,
+					}),
+					"success": render_results.bind(this),
+					"error": function(jqxmlhr, status, error){console.log(status + ": " + error)}
+				};
 
-					$.ajax(settings);
-				}else{
-					// ex: https://similar-image.wmcloud.org/api/v1/similar-images?image_name=Eastern_chanting_goshawk_(Melierax_poliopterus).jpg
-					var imageSimURL = "https://similar-image.wmcloud.org/api/v1/similar-images?image_name=" + document.getElementById('image-name').value.replaceAll(' ', '_');
-					$.ajax(imageSimURL,
-						{
-							success: render_results.bind(this),
-							error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
-						}
-					);
-				}
+				$.ajax(settings);
 			}
 		}
 	</script>
