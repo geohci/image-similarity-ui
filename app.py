@@ -35,7 +35,7 @@ def valildate_commons_image(image_name):
     elif 'upload.wikimedia.org/wikipedia/commons' in image_name:
         image_name = image_name.split('/')[-1]
     # ex: https://commons.wikimedia.org/wiki/File:Nuselsky-most.jpg
-    elif 'commons.wkimedia.org/wiki/File:' in image_name:
+    elif 'commons.wikimedia.org/wiki/File:' in image_name:
         image_name = image_name.split('/wiki/')[-1][5:]
 
     for img_ext in VALID_IMAGE_EXTENSIONS:
