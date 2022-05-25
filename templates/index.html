@@ -116,6 +116,7 @@
 						</div>
 					</div>
 				</section>
+				<section id="results-feedback"></section>
 			</main>
 		</section>
 	</article>
@@ -202,6 +203,14 @@
 			return upload_to_thumbnail(url);
 		}
 
+		var generate_permalink = function() {
+			var result_url = 'https://imagesimilarity.toolforge.org/';
+			if (document.getElementById('image-name').value) {
+				result_url = result_url + '?image_name=' + document.getElementById('image-name').value;
+			}
+			return '<a href="' + result_url + '">' + result_url + '</a>';
+		}
+
 		var render_results = function(data) {
 			// clear previous results
 			$("#source-img").empty();
@@ -214,6 +223,8 @@
 			$("#sim-img-6").empty();
 			$("#sim-img-7").empty();
 			$("#sim-img-8").empty();
+			// clear result feedback
+			$('#results-feedback').empty();
 			var sourceImageUrl = ""
 			if(document.getElementById('image-name').value.startsWith('http'))
 				sourceImageUrl = document.getElementById('image-name').value;
@@ -253,6 +264,7 @@
 					}
 				}
 			}
+			$("#results-feedback").append('<br><p>Seems wrong? Leave feedback at <a href="https://meta.wikimedia.org/wiki/Research_talk:A_System_for_Large-scale_Image_Similarity">Meta</a> or <a href="https://github.com/geohci/image-similarity-ui/issues">Github</a>. Here is a link to this result: ' + generate_permalink() + '</p>');
 		}
 
 		// if using a random image, make sure the form reflects that
