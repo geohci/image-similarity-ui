@@ -755,6 +755,10 @@ body.js #tool_main form label.placeholder.off .field_name {
 	border-left: 1px solid var(--grey1);
 }
 
+#results-feedback a {
+	color: var(--color1);
+}
+
 @media all and (max-width: 1000px) {
 
 	#tool_header .description {
