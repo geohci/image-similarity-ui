@@ -206,7 +206,7 @@
 		var generate_permalink = function() {
 			var result_url = 'https://imagesimilarity.toolforge.org/';
 			if (document.getElementById('image-name').value) {
-				result_url = result_url + '?image_name=' + document.getElementById('image-name').value;
+				result_url = result_url + '?image_name=' + document.getElementById('image-name').value.replaceAll(' ', '_');
 			}
 			return '<a href="' + result_url + '">' + result_url + '</a>';
 		}
