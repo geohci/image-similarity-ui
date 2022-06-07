@@ -469,7 +469,7 @@ h6 {
 	text-align: right;
 }
 
-#tool_main form input[type="submit"] {
+#tool_main form input[type="submit"], .btnUpload {
 	-webkit-appearance: none;
 	appearance: none;
 	display: inline-block;
@@ -488,7 +488,7 @@ h6 {
 }
 
 #tool_main form input[type="submit"]:hover,
-#tool_main form input[type="submit"]:focus {
+#tool_main form input[type="submit"]:focus, .btnUpload:hover{
 	border-color: var(--grey2);
 	background-color: var(--black);
 }
