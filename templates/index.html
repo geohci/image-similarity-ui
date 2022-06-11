@@ -69,6 +69,9 @@
 					</form>
 				</section>
 				<section id="results">
+					<div id="loading" class="loading hidden">
+						<h1>Loading...</h1>
+					</div>
 					<div class="cards">
 						<div class="cols cols4">
 							<div class="col col1">
@@ -215,6 +218,7 @@
 		}
 
 		var clear_everything = function() {
+			$('#loading').addClass('hidden');
 			// clear previous results
 			$("#source-img").empty();
 			$("#sim-img-0").empty();
@@ -311,11 +315,13 @@
 		function queryImageSimAPI() {
 			// if no image submitted, get a random one
 			var imageNameOrUrl = document.getElementById('image-name').value;
+			if(imageNameOrUrl === '') clear_everything();
 			if (!imageNameOrUrl || !imageNameOrUrl.startsWith('http')) {
 				if(!imageNameOrUrl){
 					var randomPageQueryURL = "https://commons.wikimedia.org/w/api.php?action=query&format=json&list=random&rnlimit=1&rnnamespace=6&origin=*";
 					$.ajax(randomPageQueryURL,
 						{
+							beforeSend: function() { $('#loading').removeClass('hidden'); },
 							success: update_image_name.bind(this),
 							error: function(jqxmlhr, status, error){console.log(status + ": " + error)},
 							async: false
@@ -326,12 +332,14 @@
 				var imageSimURL = "https://similar-image.wmcloud.org/api/v1/similar-images?image_name=" + document.getElementById('image-name').value.replaceAll(' ', '_');
 				$.ajax(imageSimURL,
 					{
+						beforeSend: function() { $('#loading').removeClass('hidden'); },
 						success: function (data, status, jqXHR) { render_results(data, null, '') },
 						error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 					}
 				);
 			}
 			else{
+				clear_everything();
 				var settings = {
 					"url": "https://similar-image.wmcloud.org/api/v1/similar-images-url",
 					"method": "POST",
@@ -342,6 +350,7 @@
 					"data": JSON.stringify({
 						"url": imageNameOrUrl,
 					}),
+					beforeSend: function() { $('#loading').removeClass('hidden'); },
 					"success": function (data, status, jqXHR) { render_results(data, null, '') },
 					"error": function(jqxmlhr, status, error){console.log(status + ": " + error)}
 				};
@@ -351,6 +360,7 @@
 		}
 
 		function uploadAndQueryImage({ fileName, file }) {
+			clear_everything();
 			var form = new FormData();
 			form.append("image", file, fileName);
 			var settings = {
@@ -361,6 +371,7 @@
 				"mimeType": "multipart/form-data",
 				"contentType": false,
 				"data": form,
+				beforeSend: function() { $('#loading').removeClass('hidden'); },
 				"success": function (data, status, jqXHR) { render_results(JSON.parse(data), file, fileName) },
 				"error": function (jqxmlhr, status, error) { console.log(status + ": " + error) }
 			};
