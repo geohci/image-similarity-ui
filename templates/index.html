@@ -46,23 +46,24 @@
 		<section id="topic" class="boxwidth--1-1 padded--left padded--right">
 			<main id="tool_main">
 				<section class="form">
-					<form action="#results">
-						<div class="cols cols3">
+					<form action="#results" >
+						<div class="cols cols3" x-data="{fileName: '', file: ''}">
 							<div class="col col2">
 								{% if image_name %}
-								<label class="placeholder"><span class="field_name">Commons image name -- e.g., Eastern chanting goshawk (Melierax poliopterus).jpg</span>
-									<input type="text" value="{{image_name}}" placeholder="Placeholder text" id="image-name"/>
+								<label class="placeholder"><span class="field_name">Commons Image Name, External image URL or Click Upload</span>
+									<input type="text" value="{{image_name}}" placeholder="Placeholder text" id="image-name" x-model="fileName"/>
 								</label>
 								{% else %}
-								<label class="placeholder"><span class="field_name">Commons image name -- e.g., Eastern chanting goshawk (Melierax poliopterus).jpg</span>
-									<input type="text" value="" placeholder="Placeholder text" id="image-name"/>
+								<label class="placeholder"><span class="field_name">Commons Image Name, External image URL or click Upload</span>
+									<input type="text" value="" placeholder="Placeholder text" id="image-name" x-model="fileName"/>
 								</label>
 								{% endif %}
+								<input type="file" x-ref="file" @change="fileName = $refs.file.files[0].name; file=$refs.file.files[0]; uploadAndQueryImage($data); document.getElementById('image-name').parentNode.className = 'placeholder';" style="display: none" name="image">
 							</div>
 							<div class="col col1">
 								<span class="field_name"></span>
 								<input type="submit" value="Submit" id="btnSubmit" />
-								<button class="btnUpload" id="btnUpload">Upload</button>
+								<button class="btnUpload" id="btnUpload" x-on:click.prevent="$refs.file.click()">Upload</button>
 							</div>
 						</div>
 					</form>
@@ -137,6 +138,7 @@
 	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
 	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/crypto-js/4.1.1/core.js"></script>
 	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/crypto-js/4.1.1/md5.min.js"></script>
+	<script defer src="https://unpkg.com/alpinejs@3.10.2/dist/cdn.min.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$('form label.placeholder').each(function() {
@@ -159,10 +161,6 @@
 	<script type="text/javascript">
 		$('#btnSubmit').click(function (e) {
 		   e.preventDefault(); queryImageSimAPI();
-		});
-
-		$('#btnUpload').click(function (e) {
-			e.preventDefault(); console.log("Hello");
 		});
 
 		// some boilerplate code to hit the API if the form is filled in on page load
@@ -216,7 +214,7 @@
 			return '<a href="' + result_url + '">' + result_url + '</a>';
 		}
 
-		var render_results = function(data) {
+		var clear_everything = function() {
 			// clear previous results
 			$("#source-img").empty();
 			$("#sim-img-0").empty();
@@ -230,11 +228,22 @@
 			$("#sim-img-8").empty();
 			// clear result feedback
 			$('#results-feedback').empty();
+		}
+
+		var make_clickable = function (status){
 			var sourceImageUrl = ""
-			if(document.getElementById('image-name').value.startsWith('http'))
-				sourceImageUrl = document.getElementById('image-name').value;
-			else
-				sourceImageUrl = 'https://commons.wikimedia.org/wiki/File:' + encodeURI(document.getElementById('image-name').value);
+			if (status){
+				if(document.getElementById('image-name').value.startsWith('http'))
+					sourceImageUrl = document.getElementById('image-name').value;
+				else
+					sourceImageUrl = 'https://commons.wikimedia.org/wiki/File:' + encodeURI(document.getElementById('image-name').value);
+			}
+			return sourceImageUrl === "" ? "#" : sourceImageUrl;
+		}
+
+		var render_results = function(data, file, fileName) {
+			clear_everything();
+			var sourceImageUrl = make_clickable(fileName === '');
 			var sourceCardHTML = '<a href="' + sourceImageUrl + '"' + '">';
 			if ("Error" in data) {
 				sourceCardHTML += '<div class="texts"><p>Look-up for ' + document.getElementById('image-name').value + ' in index failed.</p>';
@@ -242,16 +251,10 @@
 				$("#source-img").append(sourceCardHTML);
 			} else if (data.length > 0) {
 				// build input image card
-				imgName = document.getElementById('image-name').value;
-				if(document.getElementById('image-name').value.startsWith('http'))
-					imgURL = encodeURI(imgName);
+				if(fileName === '')
+					render_url_image(sourceCardHTML);
 				else
-					imgURL = encodeURI(image_name_to_upload(imgName));
-				sourceCardHTML += '<div class="img"><figure><img src="' + imgURL + '" /></figure></div>';
-				sourceCardHTML += '<div class="texts"><h3>Input image</h3>';
-				sourceCardHTML += '<p>' + printable_image_name(imgName) + '</p>';
-				sourceCardHTML += '</div><div class="more">More info. &raquo;</div></a>';
-				$("#source-img").append(sourceCardHTML);
+					render_uploaded_image(data, file, fileName);
 				// build result cards
 				for (i in data) {
 					// only show first 9
@@ -270,6 +273,33 @@
 				}
 			}
 			$("#results-feedback").append('<br><p>Seems wrong? Leave feedback at <a href="https://meta.wikimedia.org/wiki/Research_talk:A_System_for_Large-scale_Image_Similarity">Meta</a> or <a href="https://github.com/geohci/image-similarity-ui/issues">Github</a>. Here is a link to this result: ' + generate_permalink() + '</p>');
+		}
+
+		var render_uploaded_image = function(result, file, fileName) {
+			var reader = new FileReader();
+			var sourceCardHTML = '';
+			reader.onload = function (e) {
+				sourceCardHTML += '<div class="img"><figure><img src="' + e.target.result + '" /></figure></div>';
+				sourceCardHTML += '<div class="texts"><h3>Input image</h3>';
+				sourceCardHTML += '<p>' + printable_image_name(fileName) + '</p>';
+				sourceCardHTML += '</div><div class="more">More info. &raquo;</div></a>';
+				$("#source-img").append(sourceCardHTML);
+			};
+			clear_everything();
+			reader.readAsDataURL(file);
+		}
+
+		render_url_image = function(sourceCardHTML) {
+			imgName = document.getElementById('image-name').value;
+			if(document.getElementById('image-name').value.startsWith('http'))
+				imgURL = encodeURI(imgName);
+			else
+				imgURL = encodeURI(image_name_to_upload(imgName));
+			sourceCardHTML += '<div class="img"><figure><img src="' + imgURL + '" /></figure></div>';
+			sourceCardHTML += '<div class="texts"><h3>Input image</h3>';
+			sourceCardHTML += '<p>' + printable_image_name(imgName) + '</p>';
+			sourceCardHTML += '</div><div class="more">More info. &raquo;</div></a>';
+			$("#source-img").append(sourceCardHTML);
 		}
 
 		// if using a random image, make sure the form reflects that
@@ -296,7 +326,7 @@
 				var imageSimURL = "https://similar-image.wmcloud.org/api/v1/similar-images?image_name=" + document.getElementById('image-name').value.replaceAll(' ', '_');
 				$.ajax(imageSimURL,
 					{
-						success: render_results.bind(this),
+						success: function (data, status, jqXHR) { render_results(data, null, '') },
 						error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 					}
 				);
@@ -312,12 +342,29 @@
 					"data": JSON.stringify({
 						"url": imageNameOrUrl,
 					}),
-					"success": render_results.bind(this),
+					"success": function (data, status, jqXHR) { render_results(data, null, '') },
 					"error": function(jqxmlhr, status, error){console.log(status + ": " + error)}
 				};
 
 				$.ajax(settings);
 			}
+		}
+
+		function uploadAndQueryImage({ fileName, file }) {
+			var form = new FormData();
+			form.append("image", file, fileName);
+			var settings = {
+				"url": "https://similar-image.wmcloud.org/api/v1/similar-images-bytes",
+				"method": "POST",
+				"timeout": 0,
+				"processData": false,
+				"mimeType": "multipart/form-data",
+				"contentType": false,
+				"data": form,
+				"success": function (data, status, jqXHR) { render_results(JSON.parse(data), file, fileName) },
+				"error": function (jqxmlhr, status, error) { console.log(status + ": " + error) }
+			};
+			$.ajax(settings);
 		}
 	</script>
 </body>
