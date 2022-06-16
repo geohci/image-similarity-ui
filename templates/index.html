@@ -253,6 +253,9 @@
 				sourceCardHTML += '<div class="texts"><p>Look-up for ' + document.getElementById('image-name').value + ' in index failed.</p>';
 				sourceCardHTML += '<p>Click here to see if it exists on Wikimedia Commons.</p></div>';
 				$("#source-img").append(sourceCardHTML);
+			} else if ("warning" in data){
+				sourceCardHTML += '<p>' + data['warning'] + '</p></div>';
+				$("#source-img").append(sourceCardHTML);
 			} else if (data.length > 0) {
 				// build input image card
 				if(fileName === '')
